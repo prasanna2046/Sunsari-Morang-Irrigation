@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title>Sunsari-Morang Irrigation Main and Sub Canal</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/Irri_point_1.js"></script>
+        <script src="data/irrigation_2.js"></script>
+        <script src="data/Sun_mor_irri_3.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+            highlightLayer.openPopup();
+        }
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        })
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var title = new L.Control({'position':'topleft'});
+        title.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+        title.update = function () {
+            this._div.innerHTML = '<h2>Sunsari-Morang Irrigation Main and Sub Canal</h2>';
+        };
+        title.addTo(map);
+        var abstract = new L.Control({'position':'bottomright'});
+        abstract.onAdd = function (map) {
+            this._div = L.DomUtil.create('div',
+            'leaflet-control abstract');
+            this._div.id = 'abstract'
+
+                abstract.show();
+                return this._div;
+            };
+            abstract.show = function () {
+                this._div.classList.remove("abstract");
+                this._div.classList.add("abstractUncollapsed");
+                this._div.innerHTML = 'This map Shows Sunsati Morang Itrrigation project main canel from Chatra to Rangeli  with its sub canel ';
+        };
+        abstract.addTo(map);
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+            if (bounds_group.getLayers().length) {
+                map.fitBounds(bounds_group.getBounds());
+            }
+        }
+        map.createPane('pane_Positron_0');
+        map.getPane('pane_Positron_0').style.zIndex = 400;
+        var layer_Positron_0 = L.tileLayer('https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+            pane: 'pane_Positron_0',
+            opacity: 0.747,
+            attribution: '<a href="https://cartodb.com/basemaps/">Map tiles by CartoDB, under CC BY 3.0. Data by OpenStreetMap, under ODbL.</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        layer_Positron_0;
+        map.addLayer(layer_Positron_0);
+        function pop_Irri_point_1(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">id</th>\
+                        <td class="visible-with-data" id="id">' + (feature.properties['id'] !== null ? autolinker.link(feature.properties['id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Type</th>\
+                        <td class="visible-with-data" id="Type">' + (feature.properties['Type'] !== null ? autolinker.link(feature.properties['Type'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Irri_point_1_0() {
+            return {
+                pane: 'pane_Irri_point_1',
+                radius: 12.8,
+                opacity: 1,
+                color: 'rgba(128,17,25,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,30,42,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Irri_point_1');
+        map.getPane('pane_Irri_point_1').style.zIndex = 401;
+        map.getPane('pane_Irri_point_1').style['mix-blend-mode'] = 'normal';
+        var layer_Irri_point_1 = new L.geoJson(json_Irri_point_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Irri_point_1',
+            layerName: 'layer_Irri_point_1',
+            pane: 'pane_Irri_point_1',
+            onEachFeature: pop_Irri_point_1,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Irri_point_1_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Irri_point_1);
+        map.addLayer(layer_Irri_point_1);
+        function pop_irrigation_2(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">id</th>\
+                        <td class="visible-with-data" id="id">' + (feature.properties['id'] !== null ? autolinker.link(feature.properties['id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_irrigation_2_0() {
+            return {
+                pane: 'pane_irrigation_2',
+                opacity: 1,
+                color: 'rgba(231,113,72,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 7.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_irrigation_2');
+        map.getPane('pane_irrigation_2').style.zIndex = 402;
+        map.getPane('pane_irrigation_2').style['mix-blend-mode'] = 'normal';
+        var layer_irrigation_2 = new L.geoJson(json_irrigation_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_irrigation_2',
+            layerName: 'layer_irrigation_2',
+            pane: 'pane_irrigation_2',
+            onEachFeature: pop_irrigation_2,
+            style: style_irrigation_2_0,
+        });
+        bounds_group.addLayer(layer_irrigation_2);
+        map.addLayer(layer_irrigation_2);
+        function pop_Sun_mor_irri_3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">STATE_CODE</th>\
+                        <td class="visible-with-data" id="STATE_CODE">' + (feature.properties['STATE_CODE'] !== null ? autolinker.link(feature.properties['STATE_CODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">DISTRICT</th>\
+                        <td class="visible-with-data" id="DISTRICT">' + (feature.properties['DISTRICT'] !== null ? autolinker.link(feature.properties['DISTRICT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">GaPa_NaPa</th>\
+                        <td class="visible-with-data" id="GaPa_NaPa">' + (feature.properties['GaPa_NaPa'] !== null ? autolinker.link(feature.properties['GaPa_NaPa'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Type_GN</th>\
+                        <td class="visible-with-data" id="Type_GN">' + (feature.properties['Type_GN'] !== null ? autolinker.link(feature.properties['Type_GN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Province</th>\
+                        <td class="visible-with-data" id="Province">' + (feature.properties['Province'] !== null ? autolinker.link(feature.properties['Province'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Sun_mor_irri_3_0() {
+            return {
+                pane: 'pane_Sun_mor_irri_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Sun_mor_irri_3');
+        map.getPane('pane_Sun_mor_irri_3').style.zIndex = 403;
+        map.getPane('pane_Sun_mor_irri_3').style['mix-blend-mode'] = 'normal';
+        var layer_Sun_mor_irri_3 = new L.geoJson(json_Sun_mor_irri_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Sun_mor_irri_3',
+            layerName: 'layer_Sun_mor_irri_3',
+            pane: 'pane_Sun_mor_irri_3',
+            onEachFeature: pop_Sun_mor_irri_3,
+            style: style_Sun_mor_irri_3_0,
+        });
+        bounds_group.addLayer(layer_Sun_mor_irri_3);
+        map.addLayer(layer_Sun_mor_irri_3);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var baseMaps = {};
+        var overlaysTree = [
+            {label: '<img src="legend/Sun_mor_irri_3.png" /> Sun_mor_irri', layer: layer_Sun_mor_irri_3},
+            {label: '<img src="legend/irrigation_2.png" /> irrigation', layer: layer_irrigation_2},
+            {label: '<img src="legend/Irri_point_1.png" /> Irri_point', layer: layer_Irri_point_1},
+            {label: "Positron", layer: layer_Positron_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        var i = 0;
+        layer_Sun_mor_irri_3.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['GaPa_NaPa'] !== null?String('<div style="color: #323232; font-size: 10pt; font-family: \'Arial\', sans-serif;">' + layer.feature.properties['GaPa_NaPa']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_Sun_mor_irri_3'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"id": "int","STATE_CODE": "int","DISTRICT": "str","Type_GN": "str","Province": "str","Type": "str","GaPa_NaPa": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+        var i = 0;
+        layer_Sun_mor_irri_3.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['GaPa_NaPa'] !== null?String('<div style="color: #323232; font-size: 10pt; font-family: \'Arial\', sans-serif;">' + layer.feature.properties['GaPa_NaPa']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_Sun_mor_irri_3'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_id = document.createElement("div");
+            div_id.id = "div_id";
+            div_id.className = "slider";
+            document.getElementById("menu").appendChild(div_id);
+            var lab_id = document.createElement('div');
+            lab_id.innerHTML  = 'id: <span id="val_id"></span>';
+            lab_id.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_id);
+            var reset_id = document.createElement('div');
+            reset_id.innerHTML = 'clear filter';
+            reset_id.className = 'filterlabel';
+            lab_id.className = 'filterlabel';
+            reset_id.onclick = function() {
+                sel_id.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_id);
+            var sel_id = document.getElementById('div_id');
+            noUiSlider.create(sel_id, {
+                connect: true,
+                start: [1, 7],
+                step: 1,
+                format: wNumb({
+                    decimals: 0,
+                    }),
+                range: {
+                min: 1,
+                max: 7
+                }
+            });
+            sel_id.noUiSlider.on('update', function (values) {
+            filterVals =[];
+            for (value in values){
+            filterVals.push(parseInt(value))
+            }
+            val_id = document.getElementById('val_id');
+            val_id.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_STATE_CODE = document.createElement("div");
+            div_STATE_CODE.id = "div_STATE_CODE";
+            div_STATE_CODE.className = "slider";
+            document.getElementById("menu").appendChild(div_STATE_CODE);
+            var lab_STATE_CODE = document.createElement('div');
+            lab_STATE_CODE.innerHTML  = 'STATE_CODE: <span id="val_STATE_CODE"></span>';
+            lab_STATE_CODE.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_STATE_CODE);
+            var reset_STATE_CODE = document.createElement('div');
+            reset_STATE_CODE.innerHTML = 'clear filter';
+            reset_STATE_CODE.className = 'filterlabel';
+            lab_STATE_CODE.className = 'filterlabel';
+            reset_STATE_CODE.onclick = function() {
+                sel_STATE_CODE.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_STATE_CODE);
+            var sel_STATE_CODE = document.getElementById('div_STATE_CODE');
+            noUiSlider.create(sel_STATE_CODE, {
+                connect: true,
+                start: [1, 2],
+                step: 1,
+                format: wNumb({
+                    decimals: 0,
+                    }),
+                range: {
+                min: 1,
+                max: 2
+                }
+            });
+            sel_STATE_CODE.noUiSlider.on('update', function (values) {
+            filterVals =[];
+            for (value in values){
+            filterVals.push(parseInt(value))
+            }
+            val_STATE_CODE = document.getElementById('val_STATE_CODE');
+            val_STATE_CODE.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_DISTRICT = document.createElement('div');
+            div_DISTRICT.id = "div_DISTRICT";
+            div_DISTRICT.className= "filterselect";
+            document.getElementById("menu").appendChild(div_DISTRICT);
+            sel_DISTRICT = document.createElement('select');
+            sel_DISTRICT.multiple = true;
+            sel_DISTRICT.size = 2;
+            sel_DISTRICT.id = "sel_DISTRICT";
+            var DISTRICT_options_str = "<option value='' unselected></option>";
+            sel_DISTRICT.onchange = function(){filterFunc()};
+            DISTRICT_options_str  += '<option value="MORANG">MORANG</option>';
+            DISTRICT_options_str  += '<option value="SUNSARI">SUNSARI</option>';
+            sel_DISTRICT.innerHTML = DISTRICT_options_str;
+            div_DISTRICT.appendChild(sel_DISTRICT);
+            var lab_DISTRICT = document.createElement('div');
+            lab_DISTRICT.innerHTML = 'DISTRICT';
+            lab_DISTRICT.className = 'filterlabel';
+            div_DISTRICT.appendChild(lab_DISTRICT);
+            var reset_DISTRICT = document.createElement('div');
+            reset_DISTRICT.innerHTML = 'clear filter';
+            reset_DISTRICT.className = 'filterlabel';
+            reset_DISTRICT.onclick = function() {
+                var options = document.getElementById("sel_DISTRICT").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_DISTRICT.appendChild(reset_DISTRICT);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Type_GN = document.createElement('div');
+            div_Type_GN.id = "div_Type_GN";
+            div_Type_GN.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Type_GN);
+            sel_Type_GN = document.createElement('select');
+            sel_Type_GN.multiple = true;
+            sel_Type_GN.size = 4;
+            sel_Type_GN.id = "sel_Type_GN";
+            var Type_GN_options_str = "<option value='' unselected></option>";
+            sel_Type_GN.onchange = function(){filterFunc()};
+            Type_GN_options_str  += '<option value="Gaunpalika">Gaunpalika</option>';
+            Type_GN_options_str  += '<option value="Mahanagarpalika">Mahanagarpalika</option>';
+            Type_GN_options_str  += '<option value="Nagarpalika">Nagarpalika</option>';
+            Type_GN_options_str  += '<option value="Upamahanagarpalika">Upamahanagarpalika</option>';
+            sel_Type_GN.innerHTML = Type_GN_options_str;
+            div_Type_GN.appendChild(sel_Type_GN);
+            var lab_Type_GN = document.createElement('div');
+            lab_Type_GN.innerHTML = 'Type_GN';
+            lab_Type_GN.className = 'filterlabel';
+            div_Type_GN.appendChild(lab_Type_GN);
+            var reset_Type_GN = document.createElement('div');
+            reset_Type_GN.innerHTML = 'clear filter';
+            reset_Type_GN.className = 'filterlabel';
+            reset_Type_GN.onclick = function() {
+                var options = document.getElementById("sel_Type_GN").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Type_GN.appendChild(reset_Type_GN);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Province = document.createElement('div');
+            div_Province.id = "div_Province";
+            div_Province.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Province);
+            sel_Province = document.createElement('select');
+            sel_Province.multiple = true;
+            sel_Province.size = 1;
+            sel_Province.id = "sel_Province";
+            var Province_options_str = "<option value='' unselected></option>";
+            sel_Province.onchange = function(){filterFunc()};
+            Province_options_str  += '<option value="1">1</option>';
+            sel_Province.innerHTML = Province_options_str;
+            div_Province.appendChild(sel_Province);
+            var lab_Province = document.createElement('div');
+            lab_Province.innerHTML = 'Province';
+            lab_Province.className = 'filterlabel';
+            div_Province.appendChild(lab_Province);
+            var reset_Province = document.createElement('div');
+            reset_Province.innerHTML = 'clear filter';
+            reset_Province.className = 'filterlabel';
+            reset_Province.onclick = function() {
+                var options = document.getElementById("sel_Province").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Province.appendChild(reset_Province);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Type = document.createElement('div');
+            div_Type.id = "div_Type";
+            div_Type.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Type);
+            sel_Type = document.createElement('select');
+            sel_Type.multiple = true;
+            sel_Type.size = 3;
+            sel_Type.id = "sel_Type";
+            var Type_options_str = "<option value='' unselected></option>";
+            sel_Type.onchange = function(){filterFunc()};
+            Type_options_str  += '<option value="Head">Head</option>';
+            Type_options_str  += '<option value="Tail">Tail</option>';
+            Type_options_str  += '<option value="subcanel">subcanel</option>';
+            sel_Type.innerHTML = Type_options_str;
+            div_Type.appendChild(sel_Type);
+            var lab_Type = document.createElement('div');
+            lab_Type.innerHTML = 'Type';
+            lab_Type.className = 'filterlabel';
+            div_Type.appendChild(lab_Type);
+            var reset_Type = document.createElement('div');
+            reset_Type.innerHTML = 'clear filter';
+            reset_Type.className = 'filterlabel';
+            reset_Type.onclick = function() {
+                var options = document.getElementById("sel_Type").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Type.appendChild(reset_Type);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_GaPa_NaPa = document.createElement('div');
+            div_GaPa_NaPa.id = "div_GaPa_NaPa";
+            div_GaPa_NaPa.className= "filterselect";
+            document.getElementById("menu").appendChild(div_GaPa_NaPa);
+            sel_GaPa_NaPa = document.createElement('select');
+            sel_GaPa_NaPa.multiple = true;
+            sel_GaPa_NaPa.size = 10;
+            sel_GaPa_NaPa.id = "sel_GaPa_NaPa";
+            var GaPa_NaPa_options_str = "<option value='' unselected></option>";
+            sel_GaPa_NaPa.onchange = function(){filterFunc()};
+            GaPa_NaPa_options_str  += '<option value="Barah">Barah</option>';
+            GaPa_NaPa_options_str  += '<option value="Barju">Barju</option>';
+            GaPa_NaPa_options_str  += '<option value="Belbari">Belbari</option>';
+            GaPa_NaPa_options_str  += '<option value="Bhokraha Narsingh">Bhokraha Narsingh</option>';
+            GaPa_NaPa_options_str  += '<option value="Biratnagar">Biratnagar</option>';
+            GaPa_NaPa_options_str  += '<option value="Budhiganga">Budhiganga</option>';
+            GaPa_NaPa_options_str  += '<option value="Dewanganj">Dewanganj</option>';
+            GaPa_NaPa_options_str  += '<option value="Dhanpalthan">Dhanpalthan</option>';
+            GaPa_NaPa_options_str  += '<option value="Duhabi">Duhabi</option>';
+            GaPa_NaPa_options_str  += '<option value="Gadhi">Gadhi</option>';
+            GaPa_NaPa_options_str  += '<option value="Gramthan">Gramthan</option>';
+            GaPa_NaPa_options_str  += '<option value="Harinagar">Harinagar</option>';
+            GaPa_NaPa_options_str  += '<option value="Inaruwa">Inaruwa</option>';
+            GaPa_NaPa_options_str  += '<option value="Itahari">Itahari</option>';
+            GaPa_NaPa_options_str  += '<option value="Jahada">Jahada</option>';
+            GaPa_NaPa_options_str  += '<option value="Kanepokhari">Kanepokhari</option>';
+            GaPa_NaPa_options_str  += '<option value="Katahari">Katahari</option>';
+            GaPa_NaPa_options_str  += '<option value="Ramdhuni">Ramdhuni</option>';
+            GaPa_NaPa_options_str  += '<option value="Rangeli">Rangeli</option>';
+            GaPa_NaPa_options_str  += '<option value="Sundarharaicha">Sundarharaicha</option>';
+            sel_GaPa_NaPa.innerHTML = GaPa_NaPa_options_str;
+            div_GaPa_NaPa.appendChild(sel_GaPa_NaPa);
+            var lab_GaPa_NaPa = document.createElement('div');
+            lab_GaPa_NaPa.innerHTML = 'GaPa_NaPa';
+            lab_GaPa_NaPa.className = 'filterlabel';
+            div_GaPa_NaPa.appendChild(lab_GaPa_NaPa);
+            var reset_GaPa_NaPa = document.createElement('div');
+            reset_GaPa_NaPa.innerHTML = 'clear filter';
+            reset_GaPa_NaPa.className = 'filterlabel';
+            reset_GaPa_NaPa.onclick = function() {
+                var options = document.getElementById("sel_GaPa_NaPa").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_GaPa_NaPa.appendChild(reset_GaPa_NaPa);
+        resetLabels([layer_Sun_mor_irri_3]);
+        map.on("zoomend", function(){
+            resetLabels([layer_Sun_mor_irri_3]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_Sun_mor_irri_3]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_Sun_mor_irri_3]);
+        });
+        </script>
+    </body>
+</html>
